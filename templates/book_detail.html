@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Detail</title>
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+        .bg {
+            background-image: url('/static/background.jpg');
+            height: 100%;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+            filter: blur(8px);
+            -webkit-filter: blur(8px);
+            position: absolute;
+            width: 100%;
+            top: 0;
+            left: 0;
+            z-index:-1;
+        }
+
+        .header {
+            width: 100%;
+            background-color: rgba(255, 255, 255, 0.0);
+            padding: 20px;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1;
+        }
+        .header .right {
+            display: flex;
+            align-items: center;
+        }
+        .header a {
+            margin-right: 60px;
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            border-bottom: 1px solid #ffffff;
+        }
+        .header span {
+            margin-right: 20px;
+            padding-right: 20px;
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+        }
+
+        .content {
+            margin: 100px auto 20px;
+            padding: 60px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.2);
+            position: relative;
+            z-index: 1;
+            max-width: 1200px;
+            width: 80%;
+        }
+        .content h1 {
+            text-align: left;
+            margin-bottom: 10px;
+            font-size: 24px;
+        }
+        .book-detail {
+            display: flex;
+            align-items: flex-start;
+        }
+        .book-detail img {
+            margin-right: 10px;
+            border-radius: 5px;
+            width: 300px;
+            height: 360px;
+        }
+
+        .book-detail div {
+            flex: 1;
+        }
+
+        .book-detail p {
+            font-size: 18px;
+            line-height: 1.5;
+            margin: 5px 0; 
+        }
+
+        .book-image {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+        }
+
+
+        .download-button {
+            background-color: #008CBA;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 20px;
+            border-radius: 5px;
+        }
+
+        .delete-button {
+            background-color: #ffffff;
+            color: #008CBA;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 20px;
+            border-radius: 5px;
+            margin-top: 20px; /* 添加上边距 */
+        }
+
+        .content p {
+            font-size: 18px;
+            line-height: 1.5;
+        }
+        .footer {
+            margin-top: 20px;
+            text-align: center;
+        }
+        .footer a {
+            color: #008CBA;
+            text-decoration: none;
+            border-bottom: 1px solid #008CBA;
+        }
+
+        .toast {
+            visibility: hidden;
+            min-width: 250px;
+            background-color: rgba(0, 0, 0, 0.5);
+            color: #fff;
+            text-align: center;
+            border-radius: 5px;
+            position: fixed;
+            z-index: 9999;
+            left: 50%;
+            top: 50%;
+            font-size: 25px;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .toast.show {
+            visibility: visible;
+            -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
+            animation: fadein 0.5s, fadeout 0.5s 2.5s;
+        }
+
+        @-webkit-keyframes fadein {
+            from {opacity: 0;} 
+            to {opacity: 1;}
+        }
+
+        @keyframes fadein {
+            from {opacity: 0;}
+            to {opacity: 1;}
+        }
+
+        @-webkit-keyframes fadeout {
+            from {opacity: 1;} 
+            to {opacity: 0;}
+        }
+
+        @keyframes fadeout {
+            from {opacity: 1;}
+            to {opacity: 0;}
+        }
+
+    </style>
+</head>
+<body>
+    <div class="bg"></div>
+    <div class="header">
+        <div class="right">
+            {% if session['username'] %}
+                <span>{{ session['username'] }} ({{ session['role'] }})</span>
+                <a href="{{ url_for('upload_book') }}">Upload Book</a>
+                <a href="{{ url_for('logout') }}" class="logout-btn">Logout</a>
+            {% else %}
+                <a href="{{ url_for('index') }}">Login</a>
+            {% endif %}
+        </div>
+    </div>
+    <div class="content">
+        <div class="book-detail">
+            <div class="book-image">
+                {% if book.image_data %}
+                    <img src="{{ url_for('get_image', book_id=book.id) }}" alt="{{ book.title }}">
+                {% endif %}
+                <a class="download-button" href="{{ url_for('get_pdf', book_id=book.id) }}">DOWNLOAD</a>
+                <a class="delete-button" href="{{ url_for('delete_book', book_id=book.id) }}">DELETE</a>
+            </div>
+            <div>
+                <h1>{{ book.title }}</h1>
+                <p><strong>Author:</strong> {{ book.author }}</p>
+                <p><strong>Category:</strong> {{ book.category }}</p>
+                <p><strong>Description:</strong> {{ book.bio }}</p>
+            </div>
+        </div>
+        <div class="footer">
+            <a href="{{ url_for('search_books') }}">Back to Search</a>
+        </div>
+    </div>
+
+    <div id="toast" class="toast">This is a toast message</div>
+
+    <script>
+        function showToast(message) {
+            var toast = document.getElementById("toast");
+            toast.textContent = message;
+            toast.className = "toast show";
+            setTimeout(function() {
+                toast.className = toast.className.replace("show", "");
+            }, 3000);
+        }
+
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                    showToast("{{ message }}");
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </script>
+</body>
+</html>

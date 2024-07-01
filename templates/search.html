@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search and Upload Book</title>
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            overflow: hidden;
+        }
+        .bg {
+            background-image: url('/static/background.jpg');
+            height: 100%;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+            filter: blur(8px);
+            -webkit-filter: blur(8px);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            left: 0;
+            z-index:-1;
+        }
+
+        .header {
+            width: 100%;
+            background-color: rgba(255, 255, 255, 0.0);
+            padding: 20px 20px;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.0);
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1;
+        }
+        .header .right {
+            display: flex;
+            align-items: center;
+        }
+        .header a{
+            margin-right: 60px;
+            color:  rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            border-bottom: 1px solid #ffffff;
+        }
+
+        .header span {
+            margin-right: 20px;
+            padding-right: 20px;
+            color:  rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+        }
+        .content-wrapper {
+            height: 100%;
+            overflow: auto; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            box-sizing: border-box;
+            border-radius: 10px; 
+            padding-top: 80px;
+        }
+
+        .content {
+            margin: 100px auto 20px;
+            padding: 20px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.2);
+            position: relative;
+            z-index: 1;
+            max-width: 1000px;
+            width: 80%;
+            max-height: 90%;
+            overflow-y: auto;
+        }
+        .content h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .content input[type="text"], .content textarea {
+            width: 100%;
+            padding: 15px;
+            margin: 5px 0 20px 0;
+            display: inline-block;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+            border-radius: 5px;
+            font-size: 18px;
+        }
+        .content button {
+            background-color: #008CBA;
+            color: white;
+            padding: 10px 18px;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+            border-radius: 5px;
+            font-size: 18px;
+        }
+        .content button:hover {
+            opacity: 0.8;
+        }
+        .content ul li {
+            color: red;
+        }
+        .book-list {
+            margin-top: 20px;
+        }
+        .book-item {
+            display: flex;
+            align-items: flex-start;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            transition: box-shadow 0.3s ease, transform 0.3s ease; 
+        }
+
+        .book-item:last-child {
+            border-bottom: none;
+        }
+
+        .book-item:hover {
+            box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1); 
+            transform: translateY(-1px); 
+        }
+        .book-item div {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .book-item a {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: inherit;
+            width: 100%; 
+        }
+
+        .book-item img {
+            margin-right: 20px;
+            border-radius: 5px;
+            width: 80px;
+            height: 120px;
+        }
+
+        .book-detail {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .book-title {
+            font-weight: bold;
+            font-size: 20px;
+            color: #008CBA;
+            margin-bottom: 5px;
+        }
+
+        .book-author {
+            font-size: 14px;
+            color: #555;
+        }
+
+        .footer {
+            margin-top: 20px;
+            text-align: center;
+        }
+        .footer a {
+            color: #008CBA;
+            text-decoration: none;
+            border-bottom: 1px solid #008CBA;
+        }
+
+        .toast {
+            visibility: hidden;
+            min-width: 250px;
+            background-color: rgba(0, 0, 0, 0.5);
+            color: #fff;
+            text-align: center;
+            border-radius: 5px;
+            position: fixed;
+            z-index: 9999;
+            left: 50%;
+            top: 50%;
+            font-size: 25px;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .toast.show {
+            visibility: visible;
+            -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
+            animation: fadein 0.5s, fadeout 0.5s 2.5s;
+        }
+
+        @-webkit-keyframes fadein {
+            from {opacity: 0;} 
+            to {opacity: 1;}
+        }
+
+        @keyframes fadein {
+            from {opacity: 0;}
+            to {opacity: 1;}
+        }
+
+        @-webkit-keyframes fadeout {
+            from {opacity: 1;} 
+            to {opacity: 0;}
+        }
+
+        @keyframes fadeout {
+            from {opacity: 1;}
+            to {opacity: 0;}
+        }
+    </style>
+</head>
+<body>
+    <div class="bg"></div>
+    <div class="header">
+        <div class="right">
+            
+            {% if session['username'] %}
+                <span>{{ session['username'] }} ({{ session['role'] }})</span>
+                <a href="{{ url_for('upload_book') }}">Upload Book</a>
+                <a href="{{ url_for('logout') }}" class="logout-btn">Logout</a>
+  
+            {% else %}
+                <a href="{{ url_for('index') }}">Login</a>
+            {% endif %}
+            
+        </div>
+    </div>
+
+    <div class="content-wrapper">
+        <div class="content">
+            <h1>Search Book</h1>
+            <form method="GET" action="{{ url_for('search_books') }}">
+                <input type="text" placeholder="Search Book Title" name="search">
+                <button type="submit">Search</button>
+            </form>
+            <div class="book-list">
+                {% if books %}
+                    {% for book in books %}
+                    <div class="book-item">
+                        <a href="{{ url_for('book_detail', book_id=book.id) }}">
+                            {% if book.image_data %}
+                                <img src="{{ url_for('get_image', book_id=book.id) }}" alt="{{ book.title }}" class="book-image"> <!-- 显示缩略图 -->
+                            {% else %}
+                                <p>No image available</p>
+                            {% endif %}
+                            <div class="book-details">
+                                <strong class="book-title">{{ book.title }}</strong>
+                                <span class="book-author">{{ book.author }}</span>
+                            </div>
+                        </a>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p>No books found</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast">This is a toast message</div>
+
+<script>
+    // 显示 toast 消息
+    function showToast(message) {
+        var toast = document.getElementById("toast");
+        toast.textContent = message;
+        toast.className = "toast show";
+        setTimeout(function() {
+            toast.className = toast.className.replace("show", "");
+        }, 3000);
+    }
+
+    // 获取闪存消息并显示为 toast
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for message in messages %}
+                showToast("{{ message }}");
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+</script>
+</body>
+</html>
